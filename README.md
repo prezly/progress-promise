@@ -6,3 +6,7 @@
 ![Prettier](https://github.com/prezly/slate/workflows/Prettier/badge.svg)
 
 Promise implementation that can report progress.
+
+----
+
+Brought to you by [Prezly](https://www.prezly.com/?utm_source=github&utm_campaign=@prezly/progress-promise).
