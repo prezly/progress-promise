@@ -1,6 +1,6 @@
 {
     "name": "@prezly/progress-promise",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "Promise implementation that can report progress",
     "license": "MIT",
     "main": "build/index.js",
