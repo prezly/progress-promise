@@ -1,0 +1,38 @@
+{
+    "name": "@prezly/progress-promise",
+    "version": "0.0.1",
+    "description": "Promise implementation that can report progress",
+    "license": "MIT",
+    "main": "build/index.js",
+    "types": "build/index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/prezly/progress-promise.git"
+    },
+    "bugs": {
+        "url": "https://github.com/prezly/progress-promise/issues"
+    },
+    "homepage": "https://github.com/prezly/progress-promise#readme",
+    "scripts": {
+        "build": "tsc --project .",
+        "check": "npm run prettier",
+        "clean": "rimraf build/ node_modules/",
+        "prettier": "prettier --check './**/*.(js|ts|scss)'",
+        "prettier:fix": "npm run prettier -- --write --no-list-different",
+        "release": "npm run release:prepare && npm run release:publish",
+        "release:prepare": "npm run clean && npm install && npm run build && npm run check",
+        "release:publish": "np --no-2fa"
+    },
+    "dependencies": {
+        "lodash.clamp": "^4.0.3",
+        "lodash.identity": "^3.0.0"
+    },
+    "devDependencies": {
+        "@types/lodash.clamp": "^4.0.6",
+        "@types/lodash.identity": "^3.0.6",
+        "np": "^7.4.0",
+        "prettier": "^2.2.1",
+        "rimraf": "^3.0.2",
+        "typescript": "^4.2.2"
+    }
+}
