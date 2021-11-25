@@ -4,7 +4,7 @@ import clamp from 'lodash.clamp';
 const MIN_PROGRESS = 0;
 const MAX_PROGRESS = 100;
 
-export default class ProgressPromise<T, P = any> implements PromiseLike<T> {
+export class ProgressPromise<T, P = any> implements PromiseLike<T> {
     private listeners: ((progress: number, progressDetails: P | null) => void)[] = [];
 
     private progress = MIN_PROGRESS;
