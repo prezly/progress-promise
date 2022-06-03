@@ -3,8 +3,16 @@
     "version": "1.0.1",
     "description": "Promise implementation that can report progress",
     "license": "MIT",
-    "main": "build/index.js",
-    "types": "build/index.d.ts",
+    "main": "build/commonjs/ProgressPromise.cjs",
+    "module": "build/esm/ProgressPromise.mjs",
+    "types": "build/types/ProgressPromise.d.ts",
+    "exports": {
+        ".": {
+            "types": "./build/types/ProgressPromise.d.ts",
+            "import": "./build/esm/ProgressPromise.mjs",
+            "default": "./build/commonjs/ProgressPromise.cjs"
+        }
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/prezly/progress-promise.git"
@@ -14,11 +22,21 @@
     },
     "homepage": "https://github.com/prezly/progress-promise#readme",
     "scripts": {
-        "build": "tsc --project .",
+        "build": "npm run build:types && npm run build:esm && npm run build:commonjs",
+        "build:esm": "tsc --project ./tsconfig.esm.json && renamer --force --find '.js' --replace '.mjs' build/esm/*" ,
+        "build:commonjs": "tsc --project ./tsconfig.commonjs.json && renamer --force --find '.js' --replace '.cjs' build/commonjs/*",
+        "build:types": "tsc --project ./tsconfig.types.json",
         "check": "npm run prettier",
-        "clean": "rimraf build/ node_modules/",
+        "clean": "npm run clean:build && npm run clean:node_modules",
+        "clean:build": "rimraf build/",
+        "clean:node_modules": "rimraf node_modules/",
         "prettier": "prettier --check './**/*.(js|ts|scss)'",
         "prettier:fix": "npm run prettier -- --write --no-list-different",
+        "test": "npm run test:build",
+        "test:build": "npm run test:esm && npm run test:cjs && npm run test:types",
+        "test:esm": "node build/esm/ProgressPromise.mjs",
+        "test:cjs": "node build/commonjs/ProgressPromise.cjs",
+        "test:types": "tsc --noEmit --esModuleInterop build/types/ProgressPromise.d.ts",
         "release": "npm run release:prepare && npm run release:publish",
         "release:prepare": "npm run clean && npm install && npm run build && npm run check",
         "release:publish": "np --no-2fa"
@@ -32,6 +50,7 @@
         "@types/lodash.identity": "^3.0.6",
         "np": "^7.4.0",
         "prettier": "^2.2.1",
+        "renamer": "^4.0.0",
         "rimraf": "^3.0.2",
         "typescript": "^4.2.2"
     }
