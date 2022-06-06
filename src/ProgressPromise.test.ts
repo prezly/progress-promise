@@ -1,6 +1,6 @@
 import { ProgressPromise } from './ProgressPromise';
 
-describe('ProgressPromise::then()', () => {
+describe('ProgressPromise.then()', () => {
     it('should resolve static values', async () => {
         const promise = ProgressPromise.resolve(42);
 
@@ -82,50 +82,103 @@ describe('ProgressPromise::then()', () => {
 
     it('should properly handle caught errors', async () => {
         return new ProgressPromise((_resolve, reject) => reject('Error'))
-          .catch((error) => {
-              return error;
-          })
-          .then(
-            (value) => expect(value).toBe('Error'),
-            () => fail('This should not happen'),
-          );
+            .catch((error) => error)
+            .then(
+                (value) => expect(value).toBe('Error'),
+                () => fail('This should not happen'),
+            );
     });
 
     it('should properly handle chained then/catch calls', async () => {
         return new ProgressPromise((resolve) => resolve('Hello'))
-          .then(
-            (value) => { throw value },
-            () => fail('This should not happen.'),
-          )
-          .then(
-            () => fail('This should not happen.'),
-            (error) => `${error} world!`,
-          )
-          .then(
-            (value) => expect(value).toBe('Hello world!'),
-            () => fail('This should not happen.'),
-          );
+            .then(
+                (value) => {
+                    throw value;
+                },
+                () => fail('This should not happen.'),
+            )
+            .then(
+                () => fail('This should not happen.'),
+                (error) => `${error} world!`,
+            )
+            .then(
+                (value) => expect(value).toBe('Hello world!'),
+                () => fail('This should not happen.'),
+            );
     });
 
     it('should properly unwrap nested promises', async () => {
         return new ProgressPromise<number>((resolve) => resolve(42))
-          .then((value) => {
-              return new ProgressPromise<number>((resolve) => resolve(value + 1))
-                .then((value) => {
-                    return new ProgressPromise<number>((resolve) => resolve(value + 1));
-                })
-          })
-          .then(
-            (value) => expect(value).toBe(44),
-            () => fail('This should not happen'),
-          );
+            .then((value) => {
+                return new ProgressPromise<number>((resolve) => resolve(value + 1)).then(
+                    (value) => {
+                        return new ProgressPromise<number>((resolve) => resolve(value + 1));
+                    },
+                );
+            })
+            .then(
+                (value) => expect(value).toBe(44),
+                () => fail('This should not happen'),
+            );
     });
-
-
 
     it('should be compatible with async/await code', async () => {
         const value = await new ProgressPromise<number>((resolve) => resolve(42));
 
         expect(value).toBe(42);
+    });
+});
+
+describe('ProgressPromise.all()', () => {
+    it('should resolve to an empty array if no promises were given', async () => {
+        await ProgressPromise.all().then((value) => expect(value).toEqual([]));
+        await ProgressPromise.all([]).then((value) => expect(value).toEqual([]));
+    })
+
+    it('should report progress for multiple non-ProgressPromise promises', async () => {
+        const progressHistory: number[] = [];
+        await ProgressPromise.all([
+            new Promise((resolve) => setTimeout(resolve, 500)),
+            new Promise((resolve) => setTimeout(resolve, 400)),
+            new Promise((resolve) => setTimeout(resolve, 300)),
+            new Promise((resolve) => setTimeout(resolve, 200)),
+            new Promise((resolve) => setTimeout(resolve, 100)),
+        ]).then(undefined, undefined, (progress) => progressHistory.push(progress));
+
+        expect(progressHistory).toEqual([20, 40, 60, 80, 100]);
+    });
+
+    it('should resolve to the array list containing resolved values from individual promises', async () => {
+        await ProgressPromise.all([
+            new Promise((resolve) => setTimeout(() => resolve(500), 500)),
+            new Promise((resolve) => setTimeout(() => resolve(400), 400)),
+            new Promise((resolve) => setTimeout(() => resolve(300), 300)),
+            new Promise((resolve) => setTimeout(() => resolve(200), 200)),
+            new Promise((resolve) => setTimeout(() => resolve(100), 100)),
+        ]).then((value) => expect(value).toEqual([500, 400, 300, 200, 100]));
+    });
+
+    it('should report detailed progress for nested ProgressPromise promises', async () => {
+        const progressHistory: number[] = [];
+        await ProgressPromise.all([
+            new ProgressPromise((resolve, _reject, progress) => {
+                setTimeout(() => progress(20), 100);
+                setTimeout(() => progress(40), 200);
+                setTimeout(() => progress(60), 300);
+                setTimeout(() => progress(80), 400);
+                setTimeout(() => progress(100), 500);
+                setTimeout(resolve, 600);
+            }),
+            new ProgressPromise((resolve, _reject, progress) => {
+                setTimeout(() => progress(20), 50);
+                setTimeout(() => progress(40), 150);
+                setTimeout(() => progress(60), 250);
+                setTimeout(() => progress(80), 350);
+                setTimeout(() => progress(100), 450);
+                setTimeout(resolve, 550);
+            }),
+        ]).then(undefined, undefined, (progress) => progressHistory.push(progress));
+
+        expect(progressHistory).toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
     });
 });
