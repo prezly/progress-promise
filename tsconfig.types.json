@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "module": "es6",
+    "noEmit": false,
+    "outDir": "./build/types"
+  },
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts"
+  ]
+}
