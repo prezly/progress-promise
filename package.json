@@ -39,7 +39,7 @@
         "test:cjs": "node build/commonjs/ProgressPromise.cjs",
         "test:types": "tsc --noEmit --esModuleInterop build/types/ProgressPromise.d.ts",
         "release": "npm run release:prepare && npm run release:publish",
-        "release:prepare": "npm run clean && npm install && npm run build && npm run check",
+        "release:prepare": "npm run clean && npm install && npm run build && npm run check && npm run test",
         "release:publish": "np --no-2fa"
     },
     "devDependencies": {
