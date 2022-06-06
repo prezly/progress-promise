@@ -46,60 +46,67 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
             return Promise.resolve(value).then(resolve, reject, reportProgress);
         });
     }
-    //
-    // static all(): ProgressPromise<void>;
-    //
-    // static all<T>(values: (T | PromiseLike<T>)[]): ProgressPromise<T[]>;
-    //
-    // static all<T1, T2>(
-    //     values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>],
-    // ): ProgressPromise<[T1, T2]>;
-    //
-    // static all(promises?: (any | PromiseLike<any>)[]): ProgressPromise<void | any[], undefined> {
-    //     if (!promises) {
-    //         return new ProgressPromise<void>((resolve) => {
-    //             resolve();
-    //         });
-    //     }
-    //     const length = promises.length; // eslint-disable-line prefer-destructuring
-    //     if (length === 0) {
-    //         return new ProgressPromise<any[]>((resolve) => resolve([]));
-    //     }
-    //     const results = new Array(length);
-    //     const progressBuffer = new Array(length).fill(MIN_PROGRESS);
-    //     let resolveCount = 0;
-    //
-    //     return new ProgressPromise((resolve, reject, reportProgress) => {
-    //         function notifyProgress(progress: number[]) {
-    //             const sumProgress = progress.reduce((sum, subProgress) => sum + subProgress, 0);
-    //             reportProgress(sumProgress / length);
-    //         }
-    //
-    //         promises.forEach((promise, index) => {
-    //             ProgressPromise.resolve(promise).then(
-    //                 (subResult: any) => {
-    //                     results[index] = subResult;
-    //                     progressBuffer[index] = MAX_PROGRESS;
-    //                     resolveCount += 1;
-    //                     notifyProgress(progressBuffer);
-    //                     if (resolveCount === length) {
-    //                         resolve(results);
-    //                     }
-    //                     return subResult;
-    //                 },
-    //                 (subError: any) => reject(subError),
-    //                 (subProgress: number) => {
-    //                     progressBuffer[index] = clamp(
-    //                         subProgress,
-    //                         progressBuffer[index],
-    //                         MAX_PROGRESS,
-    //                     );
-    //                     notifyProgress(progressBuffer);
-    //                 },
-    //             );
-    //         });
-    //     });
-    // }
+
+    // @ts-ignore
+    static all(): ProgressPromise<[], []>;
+
+    static all<T, P>(values: (T | PromiseLike<T>)[]): ProgressPromise<T[], P[]>;
+
+    static all<T1, T2, P1, P2>(
+        values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>],
+    ): ProgressPromise<[T1, T2], [P1, P2]>;
+
+    static all<T1, T2, T3, P1, P2, P3>(
+      values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>, T3 | PromiseLike<T3>],
+    ): ProgressPromise<[T1, T2, T3], [P1, P2, P3]>;
+
+    static all<T1, T2, T3, T4, P1, P2, P3, P4>(
+      values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>, T3 | PromiseLike<T3>, T4 | PromiseLike<T4>],
+    ): ProgressPromise<[T1, T2, T3, T4], [P1, P2, P3, P4]>;
+
+    static all(promises: (any | PromiseLike<any>)[] = []): ProgressPromise<any[], any[]> {
+        const length = promises.length;
+        if (length === 0) {
+            // @ts-ignore
+            return ProgressPromise.resolve([]);
+        }
+        const results = new Array(length);
+        const progressBuffer = new Array(length).fill(MIN_PROGRESS);
+        const progressDetails = new Array(length).fill(undefined);
+        let resolveCount = 0;
+
+        return new ProgressPromise<any[], any[]>((resolve, reject, reportProgress) => {
+            function notifyProgress(progress: number[], progressDetails: any[]) {
+                const sumProgress = progress.reduce((sum, subProgress) => sum + subProgress, 0);
+                reportProgress(sumProgress / length, progressDetails);
+            }
+
+            promises.forEach((promise, index) => {
+                ProgressPromise.resolve(promise).then(
+                    (subResult: any) => {
+                        results[index] = subResult;
+                        progressBuffer[index] = MAX_PROGRESS;
+                        resolveCount += 1;
+                        notifyProgress(progressBuffer, progressDetails);
+                        if (resolveCount === length) {
+                            resolve(results);
+                        }
+                        return subResult;
+                    },
+                    (subError: any) => reject(subError),
+                    (subProgress: number, subProgressDetails: any) => {
+                        progressBuffer[index] = clamp(
+                            subProgress,
+                            progressBuffer[index],
+                            MAX_PROGRESS,
+                        );
+                        progressDetails[index] = subProgressDetails;
+                        notifyProgress(progressBuffer, subProgressDetails);
+                    },
+                );
+            });
+        });
+    }
 
     then<TResult1 = T, TResult2 = never>(
         onFulfilled?: (value: T) => TResult1 | PromiseLike<TResult1>,
@@ -135,4 +142,10 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
 
 function isPromiseLike(value: any): value is PromiseLike<any> | ProgressPromise<any> {
     return value && typeof value.then === 'function'
+}
+
+function clamp(value: number, min: number, max: number): number {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
 }
