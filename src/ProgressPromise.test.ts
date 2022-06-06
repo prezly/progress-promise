@@ -181,4 +181,44 @@ describe('ProgressPromise.all()', () => {
 
         expect(progressHistory).toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
     });
+
+    it('should report progress providing array of individual progress reports details', async () => {
+        const progressHistory: number[] = [];
+        const progressDetailsHistory: any[] = [];
+        await ProgressPromise.all([
+            new ProgressPromise<void, { x: number }>((resolve, _reject, progress) => {
+                setTimeout(() => progress(20, { x: 20 }), 100);
+                setTimeout(() => progress(40, { x: 40 }), 200);
+                setTimeout(() => progress(60, { x: 60 }), 300);
+                setTimeout(() => progress(80, { x: 80 }), 400);
+                setTimeout(() => progress(100, { x: 100 }), 500);
+                setTimeout(resolve, 600);
+            }),
+            new ProgressPromise<void, { y: number }>((resolve, _reject, progress) => {
+                setTimeout(() => progress(20, { y: 20 }), 50);
+                setTimeout(() => progress(40, { y: 40 }), 150);
+                setTimeout(() => progress(60, { y: 60 }), 250);
+                setTimeout(() => progress(80, { y: 80 }), 350);
+                setTimeout(() => progress(100, { y: 100 }), 450);
+                setTimeout(resolve, 550);
+            }),
+        ]).then(undefined, undefined, (progress, details) => {
+            progressHistory.push(progress);
+            progressDetailsHistory.push([...details]);
+        });
+
+        expect(progressHistory).toEqual([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+        expect(progressDetailsHistory).toEqual([
+            [undefined, { y: 20 }],
+            [{ x: 20 }, { y: 20 }],
+            [{ x: 20 }, { y: 40 }],
+            [{ x: 40 }, { y: 40 }],
+            [{ x: 40 }, { y: 60 }],
+            [{ x: 60 }, { y: 60 }],
+            [{ x: 60 }, { y: 80 }],
+            [{ x: 80 }, { y: 80 }],
+            [{ x: 80 }, { y: 100 }],
+            [{ x: 100 }, { y: 100 }],
+        ]);
+    });
 });

@@ -54,7 +54,7 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
         values: (P extends undefined
             ? T | PromiseLike<T> | ProgressPromise<T>
             : ProgressPromise<T, P>)[],
-    ): ProgressPromise<T[], P[]>;
+    ): ProgressPromise<T[], (P | undefined)[]>;
 
     static all<T1, T2, P1 = undefined, P2 = undefined>(
         values: [
@@ -65,7 +65,7 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
                 ? T2 | PromiseLike<T2> | ProgressPromise<T2>
                 : ProgressPromise<T2, P2>,
         ],
-    ): ProgressPromise<[T1, T2], [P1, P2]>;
+    ): ProgressPromise<[T1, T2], [P1 | undefined, P2 | undefined]>;
 
     static all<T1, T2, T3, P1 = undefined, P2 = undefined, P3 = undefined>(
         values: [
@@ -79,22 +79,22 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
                 ? T3 | PromiseLike<T3> | ProgressPromise<T3>
                 : ProgressPromise<T3, P3>,
         ],
-    ): ProgressPromise<[T1, T2, T3], [P1, P2, P3]>;
+    ): ProgressPromise<[T1, T2, T3], [P1 | undefined, P2 | undefined, P3 | undefined]>;
 
     static all<T1, T2, T3, T4, P1 = undefined, P2 = undefined, P3 = undefined, P4 = undefined>(
         values: [
             P1 extends undefined
                 ? T1 | PromiseLike<T1> | ProgressPromise<T1>
-                : ProgressPromise<T1, P1>,
+                : ProgressPromise<T1, P1 | undefined>,
             P2 extends undefined
                 ? T2 | PromiseLike<T2> | ProgressPromise<T2>
-                : ProgressPromise<T2, P2>,
+                : ProgressPromise<T2, P2 | undefined>,
             P3 extends undefined
                 ? T3 | PromiseLike<T3> | ProgressPromise<T3>
-                : ProgressPromise<T3, P3>,
+                : ProgressPromise<T3, P3 | undefined>,
             P4 extends undefined
                 ? T4 | PromiseLike<T1> | ProgressPromise<T1>
-                : ProgressPromise<T1, P1>,
+                : ProgressPromise<T1, P1 | undefined>,
         ],
     ): ProgressPromise<[T1, T2, T3, T4], [P1, P2, P3, P4]>;
 
@@ -106,7 +106,7 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
         }
         const results = new Array(length);
         const progressBuffer = new Array(length).fill(MIN_PROGRESS);
-        const progressDetails = new Array(length).fill(undefined);
+        const progressDetailsBuffer = new Array(length).fill(undefined);
         let resolveCount = 0;
 
         return new ProgressPromise<any[], any[]>((resolve, reject, reportProgress) => {
@@ -121,7 +121,7 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
                         results[index] = subResult;
                         progressBuffer[index] = MAX_PROGRESS;
                         resolveCount += 1;
-                        notifyProgress(progressBuffer, progressDetails);
+                        notifyProgress(progressBuffer, progressDetailsBuffer);
                         if (resolveCount === length) {
                             resolve(results);
                         }
@@ -134,8 +134,8 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
                             progressBuffer[index],
                             MAX_PROGRESS,
                         );
-                        progressDetails[index] = subProgressDetails;
-                        notifyProgress(progressBuffer, subProgressDetails);
+                        progressDetailsBuffer[index] = subProgressDetails;
+                        notifyProgress(progressBuffer, progressDetailsBuffer);
                     },
                 );
             });
