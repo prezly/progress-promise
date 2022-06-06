@@ -147,7 +147,7 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
         onRejected?: (reason: any) => TResult2 | PromiseLike<TResult2>,
         onProgress?: (progress: number, details: P) => void,
     ): ProgressPromise<TResult1 | TResult2, P> {
-        return new ProgressPromise((resolve, reject, report) => {
+        return new ProgressPromise<TResult1 | TResult2, P>((resolve, reject, report) => {
             this.listeners.push(report);
             if (onProgress) this.listeners.push(onProgress);
 

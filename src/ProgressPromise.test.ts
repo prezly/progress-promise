@@ -127,6 +127,18 @@ describe('ProgressPromise.then()', () => {
 
         expect(value).toBe(42);
     });
+
+    it('should preserve progress details type after chaining then() calls', async () => {
+        const promise: ProgressPromise<number, { message: string }> = new ProgressPromise<
+            number,
+            { message: string }
+        >((resolve, _reject, progress) => {
+            setTimeout(() => progress(50, { message: 'Still processing' }), 50);
+            setTimeout(() => resolve(42), 100);
+        });
+
+        return promise;
+    });
 });
 
 describe('ProgressPromise.all()', () => {
