@@ -50,22 +50,51 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
     // @ts-ignore
     static all(): ProgressPromise<[], []>;
 
-    static all<T, P>(values: (T | PromiseLike<T>)[]): ProgressPromise<T[], P[]>;
+    static all<T, P = undefined>(
+        values: (P extends undefined
+            ? T | PromiseLike<T> | ProgressPromise<T>
+            : ProgressPromise<T, P>)[],
+    ): ProgressPromise<T[], P[]>;
 
-    static all<T1, T2, P1, P2>(
-        values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>],
+    static all<T1, T2, P1 = undefined, P2 = undefined>(
+        values: [
+            P1 extends undefined
+                ? T1 | PromiseLike<T1> | ProgressPromise<T1>
+                : ProgressPromise<T1, P1>,
+            P2 extends undefined
+                ? T2 | PromiseLike<T2> | ProgressPromise<T2>
+                : ProgressPromise<T2, P2>,
+        ],
     ): ProgressPromise<[T1, T2], [P1, P2]>;
 
-    static all<T1, T2, T3, P1, P2, P3>(
-        values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>, T3 | PromiseLike<T3>],
+    static all<T1, T2, T3, P1 = undefined, P2 = undefined, P3 = undefined>(
+        values: [
+            P1 extends undefined
+                ? T1 | PromiseLike<T1> | ProgressPromise<T1>
+                : ProgressPromise<T1, P1>,
+            P2 extends undefined
+                ? T2 | PromiseLike<T2> | ProgressPromise<T2>
+                : ProgressPromise<T2, P2>,
+            P3 extends undefined
+                ? T3 | PromiseLike<T3> | ProgressPromise<T3>
+                : ProgressPromise<T3, P3>,
+        ],
     ): ProgressPromise<[T1, T2, T3], [P1, P2, P3]>;
 
-    static all<T1, T2, T3, T4, P1, P2, P3, P4>(
+    static all<T1, T2, T3, T4, P1 = undefined, P2 = undefined, P3 = undefined, P4 = undefined>(
         values: [
-            T1 | PromiseLike<T1>,
-            T2 | PromiseLike<T2>,
-            T3 | PromiseLike<T3>,
-            T4 | PromiseLike<T4>,
+            P1 extends undefined
+                ? T1 | PromiseLike<T1> | ProgressPromise<T1>
+                : ProgressPromise<T1, P1>,
+            P2 extends undefined
+                ? T2 | PromiseLike<T2> | ProgressPromise<T2>
+                : ProgressPromise<T2, P2>,
+            P3 extends undefined
+                ? T3 | PromiseLike<T3> | ProgressPromise<T3>
+                : ProgressPromise<T3, P3>,
+            P4 extends undefined
+                ? T4 | PromiseLike<T1> | ProgressPromise<T1>
+                : ProgressPromise<T1, P1>,
         ],
     ): ProgressPromise<[T1, T2, T3, T4], [P1, P2, P3, P4]>;
 
