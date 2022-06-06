@@ -57,11 +57,16 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
     ): ProgressPromise<[T1, T2], [P1, P2]>;
 
     static all<T1, T2, T3, P1, P2, P3>(
-      values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>, T3 | PromiseLike<T3>],
+        values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>, T3 | PromiseLike<T3>],
     ): ProgressPromise<[T1, T2, T3], [P1, P2, P3]>;
 
     static all<T1, T2, T3, T4, P1, P2, P3, P4>(
-      values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>, T3 | PromiseLike<T3>, T4 | PromiseLike<T4>],
+        values: [
+            T1 | PromiseLike<T1>,
+            T2 | PromiseLike<T2>,
+            T3 | PromiseLike<T3>,
+            T4 | PromiseLike<T4>,
+        ],
     ): ProgressPromise<[T1, T2, T3, T4], [P1, P2, P3, P4]>;
 
     static all(promises: (any | PromiseLike<any>)[] = []): ProgressPromise<any[], any[]> {
@@ -117,9 +122,7 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
             this.listeners.push(report);
             if (onProgress) this.listeners.push(onProgress);
 
-            return this.promise
-              .then(onFulfilled, onRejected)
-              .then(resolve, reject);
+            return this.promise.then(onFulfilled, onRejected).then(resolve, reject);
         });
     }
 
@@ -127,21 +130,19 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
         onFulfilled: (value: T) => TResult1 | PromiseLike<TResult1>,
     ): ProgressPromise<TResult1, P> => {
         return this.then<TResult1>(onFulfilled);
-    }
+    };
 
     catch = <TResult2 = never>(onRejected: (reason: any) => TResult2 | PromiseLike<TResult2>) => {
         return this.then<T, TResult2>(undefined, onRejected);
-    }
+    };
 
-    onProgress = (
-        onProgress: (progress: number, details: P) => void,
-    ): ProgressPromise<T, P> => {
+    onProgress = (onProgress: (progress: number, details: P) => void): ProgressPromise<T, P> => {
         return this.then<T>(undefined, undefined, onProgress);
     };
 }
 
 function isPromiseLike(value: any): value is PromiseLike<any> | ProgressPromise<any> {
-    return value && typeof value.then === 'function'
+    return value && typeof value.then === 'function';
 }
 
 function clamp(value: number, min: number, max: number): number {

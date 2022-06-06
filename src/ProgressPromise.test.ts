@@ -133,7 +133,7 @@ describe('ProgressPromise.all()', () => {
     it('should resolve to an empty array if no promises were given', async () => {
         await ProgressPromise.all().then((value) => expect(value).toEqual([]));
         await ProgressPromise.all([]).then((value) => expect(value).toEqual([]));
-    })
+    });
 
     it('should report progress for multiple non-ProgressPromise promises', async () => {
         const progressHistory: number[] = [];
