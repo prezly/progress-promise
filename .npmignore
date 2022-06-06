@@ -6,3 +6,5 @@ node_modules/
 *.zip
 *.txt
 *.test.*
+jest.config.js
+tsconfig.*.json
