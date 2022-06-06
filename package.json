@@ -42,14 +42,8 @@
         "release:prepare": "npm run clean && npm install && npm run build && npm run check",
         "release:publish": "np --no-2fa"
     },
-    "dependencies": {
-        "lodash.clamp": "^4.0.3",
-        "lodash.identity": "^3.0.0"
-    },
     "devDependencies": {
         "@types/jest": "^28.1.0",
-        "@types/lodash.clamp": "^4.0.6",
-        "@types/lodash.identity": "^3.0.6",
         "jest": "^28.1.0",
         "np": "^7.4.0",
         "prettier": "^2.2.1",
