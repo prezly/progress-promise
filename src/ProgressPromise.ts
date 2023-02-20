@@ -93,8 +93,8 @@ export class ProgressPromise<T, P extends any = undefined> implements PromiseLik
                 ? T3 | PromiseLike<T3> | ProgressPromise<T3>
                 : ProgressPromise<T3, P3 | undefined>,
             P4 extends undefined
-                ? T4 | PromiseLike<T1> | ProgressPromise<T1>
-                : ProgressPromise<T1, P1 | undefined>,
+                ? T4 | PromiseLike<T4> | ProgressPromise<T4>
+                : ProgressPromise<T4, P4 | undefined>,
         ],
     ): ProgressPromise<[T1, T2, T3, T4], [P1, P2, P3, P4]>;
 
